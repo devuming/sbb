@@ -31,5 +31,5 @@ public class Question {
 	private LocalDateTime createDate;
 	
 	@OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
-	private List<Answer> answerList;		// 1:N 관계 이므로 List 선언 : 하나의 질문에 답변은 여러개
+	private List<Answer> answerList;		// 1:N 관계 이므로 List 선언 : 하나의 질문에 답변은 여러
 }
