@@ -2,12 +2,19 @@ package com.mysite.sbb.question;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.mysite.sbb.answer.AnswerForm;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,14 +34,23 @@ public class QuestionController {
 	}
 	
 	@RequestMapping(value = "/detail/{id}")
-	public String detail(Model model, @PathVariable("id") Integer id) {
+	public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm) {
 		Question question = this.questionService.getQuestion(id);
 		model.addAttribute("question", question);
 		return "question_detail";
 	}
 	
 	@GetMapping("/create")
-	public String questionCreate() {
+	public String questionCreate(QuestionForm questionForm) {
 		return "question_form";
+	}
+
+	@PostMapping("/create")		// 매개변수가 다르면 @GetMapping과 같은 메서드명 사용 가능
+	public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult) {	// (@RequestParam String subject, @RequestParam String content)
+		if (bindingResult.hasErrors()) {		// 검증에서 오류가 발생한 경우 폼 화면 리로드
+			return "question_form";
+		}
+		this.questionService.create(questionForm.getSubject(), questionForm.getContent());	// 검증된 Form 값 받아서 db 등록
+		return "redirect:/question/list";		// 질문 저장 후 목록으로 이동
 	}
 }
