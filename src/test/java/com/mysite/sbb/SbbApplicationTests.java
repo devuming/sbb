@@ -17,27 +17,23 @@ import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.answer.AnswerRepository;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionRepository;
+import com.mysite.sbb.question.QuestionService;
 
 @SpringBootTest
 class SbbApplicationTests {
 	
 	@Autowired		// DI(Dependency Injection) : 스프링이 객체를 대신 생성하여 주입해주는 Annotation
-	private QuestionRepository questionRepository;
+	private QuestionService questionService;
 	
-	@Autowired
-	private AnswerRepository answerRepository;
-	
-	@Transactional	// Question 조회 후 DB 세션이 끊어지는 것을 방지하기 위함 (Test 시에만 필요)
+//	@Transactional	// Question 조회 후 DB 세션이 끊어지는 것을 방지하기 위함 (Test 시에만 필요)	
 	@Test			// Test 메서드임을 나타냄, Junit 실행시 호출되는 메소드
 	void testJpa() {
-		Optional<Question> oq = this.questionRepository.findById(2);
-		assertTrue(oq.isPresent());
-		Question q = oq.get();
-		
-		List<Answer> answerList = q.getAnswerList();		// Question에 달린 Answer 조회
-		System.out.println(answerList.size());
-		assertEquals(1,  answerList.size());
-		assertEquals("네 자동으로 생성됩니다.", answerList.get(0).getContent());
+		for(int i = 1; i <= 300; i++) {
+			System.out.print(i);
+			String subject = String.format("테스트데이터 입니다. : [%03d]", i);
+			String content = "내용무";
+			this.questionService.create(subject, content);
+		}
 	}
 
 }
