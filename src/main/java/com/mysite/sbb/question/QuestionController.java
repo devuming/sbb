@@ -63,6 +63,7 @@ public class QuestionController {
 			return "question_form";
 		}
 		
+		// 질문 등록
 		SiteUser siteUser = this.userService.getUser(principal.getName());
 		this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser);	// 검증된 Form 값 받아서 db 등록
 		return "redirect:/question/list";		// 질문 저장 후 목록으로 이동
@@ -75,8 +76,10 @@ public class QuestionController {
 		if (!question.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
 		}
+		
+		// 수정 화면 set
 		questionForm.setSubject(question.getSubject());
-		questionForm.setContent(question.getSubject());
+		questionForm.setContent(question.getContent());
 		return "question_form";
 	}
 	
@@ -90,6 +93,8 @@ public class QuestionController {
 		if(!question.getAuthor().getUsername().equals(principal.getName())) {		// 작성자와 로그인 유저와 같은지 확인
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
 		}
+		
+		// 질문 수정
 		this.questionService.modify(question, questionForm.getSubject(), questionForm.getContent());
 		return String.format("redirect:/question/detail/%s", id);
 	}
@@ -101,6 +106,8 @@ public class QuestionController {
 		if(!question.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
 		}
+		
+		// 질문 삭제
 		this.questionService.delete(question);
 		return "redirect:/";	// 루트로 리다이렉트
 	}
