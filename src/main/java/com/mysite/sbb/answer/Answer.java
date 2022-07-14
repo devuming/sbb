@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import com.mysite.sbb.question.Question;
+import com.mysite.sbb.user.SiteUser;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,4 +30,7 @@ public class Answer {
 	
 	@ManyToOne
 	private Question question;		// 질문 엔티티를 참조하기 위해 추가 - N:1 관계 : 답변 여러개에 질문은 하나
+	
+	@ManyToOne
+	private SiteUser author;
 }
