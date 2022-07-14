@@ -34,7 +34,7 @@ public class AnswerController {
 	
 	@PreAuthorize("isAuthenticated()")
 	@PostMapping("/create/{id}")		// Post 요청만 받아들임
-	public String createAnswer(Model model, @PathVariable("id") Integer id, @Valid AnswerForm answerForm, BindingResult bindingResult, Principal principal) {
+	public String answerCreate(Model model, @PathVariable("id") Integer id, @Valid AnswerForm answerForm, BindingResult bindingResult, Principal principal) {
 		Question question = this.questionService.getQuestion(id);
 		SiteUser siteUser = this.userService.getUser(principal.getName());
 		
@@ -50,7 +50,7 @@ public class AnswerController {
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/modify/{id}")
-	public String modifyAnswer(AnswerForm answerForm, @PathVariable("id") Integer id, Principal principal) {
+	public String answerModify(AnswerForm answerForm, @PathVariable("id") Integer id, Principal principal) {
 		Answer answer = this.answerService.getAnswer(id);
 		if (!answer.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
@@ -63,7 +63,7 @@ public class AnswerController {
 	
 	@PreAuthorize("isAuthenticated()")
 	@PostMapping("/modify/{id}")
-	public String mofityAnswer(@Valid AnswerForm answerForm, BindingResult bindingResult, @PathVariable("id") Integer id, Principal principal){
+	public String answerModify(@Valid AnswerForm answerForm, BindingResult bindingResult, @PathVariable("id") Integer id, Principal principal){
 		if(bindingResult.hasErrors()) {
 			return "answer_form";
 		}
@@ -79,7 +79,7 @@ public class AnswerController {
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/delete/{id}")
-	public String deleteAnswer(@PathVariable("id") Integer id, Principal principal) {
+	public String answerDelete(@PathVariable("id") Integer id, Principal principal) {
 		Answer answer = this.answerService.getAnswer(id);
 		if (!answer.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
