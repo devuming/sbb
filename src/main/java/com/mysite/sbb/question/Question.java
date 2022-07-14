@@ -2,6 +2,7 @@ package com.mysite.sbb.question;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -35,10 +37,13 @@ public class Question {
 	private LocalDateTime createDate;
 	
 	@OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
-	private List<Answer> answerList;		// 1:N 관계 이므로 List 선언 : 하나의 질문에 답변은 여러
+	private List<Answer> answerList;	// 1:N 관계 이므로 List 선언 : 하나의 질문에 답변은 여러
 	
 	@ManyToOne
-	private SiteUser author;		// N:1 여러개의 질문이 한명에 의해 작성될 수 있음
+	private SiteUser author;			// N:1 여러개의 질문이 한명에 의해 작성될 수 있음
 
 	private LocalDateTime modifyDate;
+	
+	@ManyToMany
+	Set<SiteUser> voter;				// N:M 추천인 - Question_Voter 테이블 생성됨
 }
