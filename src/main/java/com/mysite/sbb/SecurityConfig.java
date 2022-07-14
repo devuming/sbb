@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.mysite.sbb.user.UserSecurityService;
 
@@ -32,7 +33,13 @@ public class SecurityConfig {
 			.and()
 				.formLogin()
 				.loginPage("/user/login")		// 로그인 페이지 : /user/login
-				.defaultSuccessUrl("/");		// 로그인 성공 시 루트로 이동
+				.defaultSuccessUrl("/")			// 로그인 성공 시 루트로 이동
+			.and()
+				.logout()
+				.logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))	// 로그아웃 URL
+				.logoutSuccessUrl("/")												// 로그아웃 성공 시 루트로 이동
+				.invalidateHttpSession(true);										// 로그아웃 시 사용자 세션 삭제
+		
 		return http.build();
 	}
 	
