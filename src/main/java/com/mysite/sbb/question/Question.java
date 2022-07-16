@@ -14,6 +14,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.user.SiteUser;
 
@@ -46,4 +48,7 @@ public class Question {
 	
 	@ManyToMany
 	Set<SiteUser> voter;				// N:M 추천인 - Question_Voter 테이블 생성됨
+	
+	@ColumnDefault("0")	// default = 0
+	private int viewCount;				// 조회수
 }

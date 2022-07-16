@@ -47,6 +47,10 @@ public class QuestionController {
 	@RequestMapping(value = "/detail/{id}")
 	public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm) {
 		Question question = this.questionService.getQuestion(id);
+		// 조회 수 증가
+		this.questionService.views(question);
+		
+		// 화면 뿌리기
 		model.addAttribute("question", question);
 		return "question_detail";
 	}

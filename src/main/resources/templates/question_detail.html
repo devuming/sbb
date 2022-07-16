@@ -1,6 +1,14 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
-	<h1 class="border-bottom py-3" th:text="${question.subject}"></h1>
+
+	<div class="border-bottom">
+		<h1 class="py-2" th:text="${question.subject}"></h1>
+		<div class="mb-2">		
+			<span class="badge btn-secondary py-1">
+	  			조회 <span class="text-bg-light" th:text="${question.viewCount}"></span>
+			</span>
+		</div>
+	</div>
 	<div class="card my-3">
 		<div class="card-body">
 			<div class="card-text" th:utext="${@commonUtil.markdown(question.content)}"></div>

@@ -96,4 +96,10 @@ public class QuestionService {
 		question.getVoter().add(siteUser);
 		this.questionRepository.save(question);
 	}
+	
+	public void views(Question question) {
+		question.setViewCount(question.getViewCount() + 1);	// 조회수 증가
+		this.questionRepository.save(question);
+	}
+	
 }
