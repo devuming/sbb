@@ -40,16 +40,26 @@ public class QuestionService {
 			public Predicate toPredicate(Root<Question> q, CriteriaQuery<?> query, CriteriaBuilder cb) {
 				query.distinct(true);	// 중복 제거
 				Join<Question, SiteUser> u1 = q.join("author", JoinType.LEFT);	// Question과 SiteUser 조인
-				Join<Question, Category> c = q.join("category", JoinType.LEFT);	// Question과 Category 조인
 				Join<Question, Answer> a = q.join("answerList", JoinType.LEFT);	// Question과 Answer 조인
 				Join<Answer, SiteUser> u2 = a.join("author", JoinType.LEFT);	// Answer와 SiteUser 조인
-				System.out.println(category);
-				return cb.and(cb.equal(c.get("id"),  category),
-								cb.or(cb.like(q.get("subject"), "%" + kw + "%"),		// 제목
-										cb.like(q.get("content"),  "%" + kw + "%"),		// 내용
-										cb.like(u1.get("username"),  "%" + kw + "%"),	// 작성자
-										cb.like(a.get("content"),  "%" + kw + "%"), 	// 답변내용
-										cb.like(u2.get("username"),  "%" + kw + "%")));	// 답변 작성자				
+				
+				if (category == null) {
+					return cb.or(cb.like(q.get("subject"), "%" + kw + "%"),		// 제목
+									cb.like(q.get("content"),  "%" + kw + "%"),		// 내용
+									cb.like(u1.get("username"),  "%" + kw + "%"),	// 작성자
+									cb.like(a.get("content"),  "%" + kw + "%"), 	// 답변내용
+									cb.like(u2.get("username"),  "%" + kw + "%"));	// 답변 작성자			
+				}
+				else {
+					Join<Question, Category> c = q.join("category", JoinType.LEFT);	// Question과 Category 조인
+					
+					return cb.and(cb.equal(c.get("id"),  category),
+							cb.or(cb.like(q.get("subject"), "%" + kw + "%"),		// 제목
+									cb.like(q.get("content"),  "%" + kw + "%"),		// 내용
+									cb.like(u1.get("username"),  "%" + kw + "%"),	// 작성자
+									cb.like(a.get("content"),  "%" + kw + "%"), 	// 답변내용
+									cb.like(u2.get("username"),  "%" + kw + "%")));	// 답변 작성자			
+				}	
 			}
 		};
 	}

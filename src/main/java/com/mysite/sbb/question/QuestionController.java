@@ -46,6 +46,7 @@ public class QuestionController {
 		Page<Question> paging = this.questionService.getList(page, kw, category);
 		model.addAttribute("paging", paging);
 		model.addAttribute("kw", kw);
+		model.addAttribute("category", category);		
 		
 		List<Category> categoryList = this.categoryService.getCategoryAll();
 		model.addAttribute("categoryList", categoryList);
