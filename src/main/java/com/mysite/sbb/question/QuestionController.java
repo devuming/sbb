@@ -3,6 +3,7 @@ package com.mysite.sbb.question;
 import java.security.Principal;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
 import javax.validation.Valid;
 
 import org.springframework.data.domain.Page;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.mysite.sbb.answer.AnswerForm;
+import com.mysite.sbb.category.Category;
+import com.mysite.sbb.category.CategoryService;
 import com.mysite.sbb.user.SiteUser;
 import com.mysite.sbb.user.UserService;
 
@@ -33,20 +36,27 @@ public class QuestionController {
 //	private final QuestionRepository questionRepository;
 	private final QuestionService questionService;		// 리포지터리대신 서비스를 사용하여 데이터 처리 (Controller -> Service -> Repository)
 	private final UserService userService;
+	private final CategoryService categoryService;
 	
 	@RequestMapping("/list")
 	public String list(Model model, @RequestParam(value="page", defaultValue = "0") int page,	// 페이지 번호를 매개변수로 받음
-					@RequestParam(value="kw", defaultValue = "") String kw) {		
+					@RequestParam(value="kw", defaultValue = "") String kw,
+					@RequestParam(value="category", defaultValue = "") Integer category) {		
 //		List<Question> questionList = this.questionService.getList();
-		Page<Question> paging = this.questionService.getList(page, kw);
+		Page<Question> paging = this.questionService.getList(page, kw, category);
 		model.addAttribute("paging", paging);
 		model.addAttribute("kw", kw);
+		
+		List<Category> categoryList = this.categoryService.getCategoryAll();
+		model.addAttribute("categoryList", categoryList);
+				
 		return "question_list";		// question_list.html 리턴
 	}
 	
 	@RequestMapping(value = "/detail/{id}")
 	public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm) {
 		Question question = this.questionService.getQuestion(id);
+		
 		// 조회 수 증가
 		this.questionService.views(question);
 		
@@ -57,7 +67,12 @@ public class QuestionController {
 	
 	@PreAuthorize("isAuthenticated()")		
 	@GetMapping("/create")
-	public String questionCreate(QuestionForm questionForm) {
+	public String questionCreate(Model model, QuestionForm questionForm) {
+		
+		// 카테고리 정보 가져오기
+		List<Category> category = this.categoryService.getCategoryAll();
+		model.addAttribute("categoryList", category);
+		
 		return "question_form";
 	}
 
@@ -71,7 +86,8 @@ public class QuestionController {
 		
 		// 질문 등록
 		SiteUser siteUser = this.userService.getUser(principal.getName());
-		this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser);	// 검증된 Form 값 받아서 db 등록
+		Category category = this.categoryService.getCategoryById(questionForm.getCategory());	// category.id로 조회
+		this.questionService.create(questionForm.getSubject(), questionForm.getContent(), category, siteUser);	// 검증된 Form 값 받아서 db 등록
 		return "redirect:/question/list";		// 질문 저장 후 목록으로 이동
 	}
 	
@@ -86,6 +102,8 @@ public class QuestionController {
 		// 수정 화면 set
 		questionForm.setSubject(question.getSubject());
 		questionForm.setContent(question.getContent());
+		questionForm.setCategory(question.getCategory().getId());
+		
 		return "question_form";
 	}
 	

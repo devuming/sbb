@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.answer.AnswerRepository;
+import com.mysite.sbb.category.CategoryService;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionRepository;
 import com.mysite.sbb.question.QuestionService;
@@ -23,17 +24,22 @@ import com.mysite.sbb.question.QuestionService;
 class SbbApplicationTests {
 	
 	@Autowired		// DI(Dependency Injection) : 스프링이 객체를 대신 생성하여 주입해주는 Annotation
-	private QuestionService questionService;
+	private CategoryService categoryService;
+//	private QuestionService questionService;
 	
 //	@Transactional	// Question 조회 후 DB 세션이 끊어지는 것을 방지하기 위함 (Test 시에만 필요)	
 	@Test			// Test 메서드임을 나타냄, Junit 실행시 호출되는 메소드
 	void testJpa() {
-		for(int i = 1; i <= 300; i++) {
-			System.out.print(i);
-			String subject = String.format("테스트데이터 입니다. : [%03d]", i);
-			String content = "내용무";
-			this.questionService.create(subject, content, null);
-		}
+//		for(int i = 700; i <= 900; i++) {
+//			System.out.print(i);
+//			String subject = String.format("테스트데이터 입니다. : [%03d]", i);
+//			String content = "내용무";
+//			this.questionService.create(subject, content, null);
+//		}
+
+		this.categoryService.create("공지사항");
+		this.categoryService.create("자유게시판");
+		this.categoryService.create("Q&A");
 	}
 
 }

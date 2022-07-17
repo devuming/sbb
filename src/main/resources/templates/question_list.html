@@ -13,29 +13,41 @@
 			</div>
 		</div>
 	</div>
-	<table class="table">
-		<thead class="table-dark">
-			<tr class="text-center">
-				<th>번호</th>
-				<th style="width:50%">제목</th>
-				<th>글쓴이</th>
-				<th>작성일시</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr class="text-center" th:each="question, loop : ${paging}">		<!-- th: 타임리프 템플릿 엔진이 사용하는 속성, each - for문 같은 것 -->
-				<td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
-				<td class="text-start">
-					<a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
-					<span class="text-danger small ms-2"
-						th:if="${#lists.size(question.answerList) > 0}"
-						th:text="${#lists.size(question.answerList)}"></span>		<!-- 답변 갯수 -->
-				</td>
-				<td><span th:if="${question.author != null}" th:text="${question.author.username}"></span></td>
-				<td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
-			</tr>
-		</tbody>
-	</table>
+	<!-- 메뉴 -->
+	<nav class="d-flex align-items-start">
+		<ul class="nav flex-column">
+			<li class="nav-item" th:each="category : ${categoryList}">
+				<a class="menu nav-link" th:text="${category.title}"  href="javascript:void(0)" th:data-page="${category.id}"></a>
+			</li>
+		</ul>
+	</nav>
+	<div class="d-flex align-items-start">
+		<table class="table">
+			<thead class="table-dark">
+				<tr class="text-center">
+					<th>번호</th>
+					<th>카테고리</th>
+					<th style="width:50%">제목</th>
+					<th>글쓴이</th>
+					<th>작성일시</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="text-center" th:each="question, loop : ${paging}">		<!-- th: 타임리프 템플릿 엔진이 사용하는 속성, each - for문 같은 것 -->
+					<td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
+					<td><span th:if="${question.category != null}" th:text="${question.category.title}"></span></td>
+					<td class="text-start">
+						<a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
+						<span class="text-danger small ms-2"
+							th:if="${#lists.size(question.answerList) > 0}"
+							th:text="${#lists.size(question.answerList)}"></span>		<!-- 답변 갯수 -->
+					</td>
+					<td><span th:if="${question.author != null}" th:text="${question.author.username}"></span></td>
+					<td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 	<!-- 페이징 처리 시작 -->
 	<div th:if="${!paging.isEmpty()}">
 		<ul class="pagination justify-content-center">
@@ -61,6 +73,7 @@
 	<form th:action="@{/question/list}" method="get" id="searchForm">
 		<input type="hidden" id="kw" name="kw" th:value="${kw}"/>
 		<input type="hidden" id="page" name="page" th:value="${paging.number}"/>
+		<input type="hidden" id="category" name="category" th:value="${category}"/>
 	</form>
 	<!-- <a th:href="@{/question/create}" class="btn btn-primary">질문 등록하기</a> -->
 </div>
@@ -78,6 +91,14 @@ btn_search.addEventListener('click', function(){
 	document.getElementById('kw').value = document.getElementById("search_kw").value;
 	document.getElementById('page').value = 0;		// 검색 시 0페이지 부터 조회
 	document.getElementById('searchForm').submit();
+});
+
+const menu = document.getElementsByClassName("menu");
+Array.from(menu).forEach(function(element){
+	element.addEventListener('click', function(){
+		document.getElementById('category').value = this.dataset.page;
+		document.getElementById('searchForm').submit();
+	});
 });
 
 </script>

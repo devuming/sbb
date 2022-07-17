@@ -13,10 +13,12 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.ColumnDefault;
 
 import com.mysite.sbb.answer.Answer;
+import com.mysite.sbb.category.Category;
 import com.mysite.sbb.user.SiteUser;
 
 import lombok.Getter;
@@ -51,4 +53,7 @@ public class Question {
 	
 	@ColumnDefault("0")	// default = 0
 	private int viewCount;				// 조회수
+
+	@OneToOne	
+	private Category category;			// 카테고리
 }
