@@ -22,7 +22,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr class="text-center" th:each="question, loop : ${paging}">		<!-- th: 타임리프 템플릿 엔진이 사용하는 속성, each - for문 같은 것 -->
+					<tr class="text-center" th:each="question, loop : ${paging}"  th:if="${!paging.isEmpty()}">		<!-- th: 타임리프 템플릿 엔진이 사용하는 속성, each - for문 같은 것 -->
 						<td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
 						<td><span th:if="${question.category != null}" th:text="${question.category.title}"></span></td>
 						<td class="text-start">
@@ -33,6 +33,9 @@
 						</td>
 						<td><span th:if="${question.author != null}" th:text="${question.author.username}"></span></td>
 						<td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+					</tr>
+					<tr th:if="${paging.isEmpty()}" class="text-center">
+						<td colspan="5">게시물이 없습니다.</td>
 					</tr>
 					<tr>
 						<td colspan="5" class="text-end"> 
@@ -52,22 +55,21 @@
 						<span>이전</span>
 					</a>
 				</li>
-				<li th:each="page : ${#numbers.sequence(0, paging.totalPages-1)}"
+				<li th:each="page : ${#numbers.sequence(0, paging.totalPages - 1)}"
 					th:if="${page >= paging.number-5 and page <= paging.number+5}"
 					th:classappend="${page == paging.number} ? 'active'"
 					class="page-item">
-					<a th:text="${page+1}" class="page-link" href="javascript:void(0)" th:data-page="${page}"></a>
+					<a th:text="${page + 1}" class="page-link" href="javascript:void(0)" th:data-page="${page}"></a>
 				</li>
 				<li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
 					<a class="page-link"  href="javascript:void(0)" th:data-page="${paging.number + 1}">
 						<span>다음</span>
 					</a>
 				</li>
-			</ul>
-			
+			</ul>			
 		</div>
 		<div class="input-group justify-content-center col-3">
-			<input type="text" id="search_kw" class="form-control" th:value="${kw}"/>
+			<input type="text" id="search_kw" class="form-control" th:value="${kw}" placeholder="검색어를 입력하세요."/>
 			<div class="input-group-append">
 				<button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
 			</div>
@@ -100,6 +102,7 @@ btn_search.addEventListener('click', function(){
 const menu = document.getElementsByClassName("menu");
 Array.from(menu).forEach(function(element){
 	element.addEventListener('click', function(){
+		document.getElementById('kw').value = '';
 		document.getElementById('category').value = this.dataset.page;
 		document.getElementById('page').value = 0;		// 검색 시 0페이지 부터 조회
 		document.getElementById('searchForm').submit();
