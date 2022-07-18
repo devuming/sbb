@@ -3,10 +3,14 @@ package com.mysite.sbb.answer;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.mysite.sbb.DataNotFoundException;
 import com.mysite.sbb.question.Question;
+import com.mysite.sbb.question.QuestionRepository;
 import com.mysite.sbb.user.SiteUser;
 
 import lombok.RequiredArgsConstructor;
@@ -15,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class AnswerService {
 	private final AnswerRepository answerRepository;
+	private final QuestionRepository questionRepository;
 	
 	public Answer create(Question question, String content, SiteUser author) {
 		Answer answer = new Answer();
@@ -33,6 +38,17 @@ public class AnswerService {
 		}
 		else {
 			throw new DataNotFoundException("answer not Found");
+		}
+	}
+	public Page<Answer> getList(Integer id, int page){
+		Pageable pageable = PageRequest.of(page, 10);		// 10개씩 조회
+		Optional<Question> question = this.questionRepository.findById(id);
+
+		if(question.isPresent()) {
+			return this.answerRepository.findAllByQuestion(question.get(), pageable);
+		}
+		else {
+			throw new DataNotFoundException("question not found");
 		}
 	}
 	

@@ -7,6 +7,8 @@ import javax.servlet.http.Cookie;
 import javax.validation.Valid;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -20,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.answer.AnswerForm;
+import com.mysite.sbb.answer.AnswerService;
 import com.mysite.sbb.category.Category;
 import com.mysite.sbb.category.CategoryService;
 import com.mysite.sbb.user.SiteUser;
@@ -37,6 +41,7 @@ public class QuestionController {
 	private final QuestionService questionService;		// 리포지터리대신 서비스를 사용하여 데이터 처리 (Controller -> Service -> Repository)
 	private final UserService userService;
 	private final CategoryService categoryService;
+	private final AnswerService answerService;
 	
 	@RequestMapping("/list")
 	public String list(Model model, @RequestParam(value="page", defaultValue = "0") int page,	// 페이지 번호를 매개변수로 받음
@@ -55,14 +60,16 @@ public class QuestionController {
 	}
 	
 	@RequestMapping(value = "/detail/{id}")
-	public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm) {
-		Question question = this.questionService.getQuestion(id);
+	public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm, @RequestParam(value="answer_page", defaultValue = "0") int answer_page) {
+		Question question = this.questionService.getQuestion(id);		
+		Page<Answer> answerList = this.answerService.getList(id, answer_page);
 		
 		// 조회 수 증가
 		this.questionService.views(question);
 		
 		// 화면 뿌리기
 		model.addAttribute("question", question);
+		model.addAttribute("answerList", answerList);
 		return "question_detail";
 	}
 	
