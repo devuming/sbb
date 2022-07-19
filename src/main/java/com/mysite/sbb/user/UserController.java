@@ -1,13 +1,21 @@
 package com.mysite.sbb.user;
 
+import java.security.Principal;
+
 import javax.validation.Valid;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.mysite.sbb.question.Question;
+import com.mysite.sbb.question.QuestionService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 	
 	private final UserService userService;
+	private final QuestionService questionService;
 	
 	@GetMapping("/signup")
 	public String signup(UserCreateForm userCreateForm) {
@@ -53,5 +62,15 @@ public class UserController {
 	@GetMapping("/login")		// PostMapping은 스프링 시큐리티가 대신 처리
 	public String login() {
 		return "login_form";
+	}
+	
+	@RequestMapping("/profile/question")
+	public String profile(Principal principal, Model model, @RequestParam(value="page", defaultValue="0") int page) {
+		SiteUser author = this.userService.getUser(principal.getName());
+		Page<Question> paging = this.questionService.getListByAuthor(page, author);
+
+		model.addAttribute("type", "question");
+		model.addAttribute("paging", paging);
+		return "profile_detail";
 	}
 }

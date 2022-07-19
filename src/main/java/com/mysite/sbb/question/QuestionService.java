@@ -73,6 +73,15 @@ public class QuestionService {
 		
 		return this.questionRepository.findAll(spec, pageable);
 	}
+
+	// 질문목록 조회 - 페이지의 질문 목록을 조회
+	public Page<Question> getListByAuthor(int page, SiteUser author){
+		List<Sort.Order> sorts = new ArrayList<>();
+		sorts.add(Sort.Order.desc("createDate"));
+		Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));		// 10개씩 조회
+		
+		return this.questionRepository.findAllByAuthor(pageable, author);
+	}
 	
 	public Question getQuestion(Integer id) {
 		Optional<Question> question = this.questionRepository.findById(id);
