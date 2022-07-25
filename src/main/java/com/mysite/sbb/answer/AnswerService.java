@@ -1,17 +1,21 @@
 package com.mysite.sbb.answer;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.mysite.sbb.DataNotFoundException;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionRepository;
 import com.mysite.sbb.user.SiteUser;
+import com.mysite.sbb.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class AnswerService {
 	private final AnswerRepository answerRepository;
 	private final QuestionRepository questionRepository;
-	
+
 	public Answer create(Question question, String content, SiteUser author) {
 		Answer answer = new Answer();
 		answer.setContent(content);
@@ -40,6 +44,7 @@ public class AnswerService {
 			throw new DataNotFoundException("answer not Found");
 		}
 	}
+	
 	public Page<Answer> getList(Integer id, int page){
 		Pageable pageable = PageRequest.of(page, 10);		// 10개씩 조회
 		Optional<Question> question = this.questionRepository.findById(id);
@@ -51,6 +56,15 @@ public class AnswerService {
 			throw new DataNotFoundException("question not found");
 		}
 	}
+
+	public Page<Answer> getListByAuthor(int page, SiteUser author){
+		List<Sort.Order> sorts = new ArrayList<>();
+		sorts.add(Sort.Order.desc("createDate"));
+		Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));		// 10개씩 조회
+		
+		return this.answerRepository.findAllByAuthor(pageable, author);
+	}
+	
 	
 	public void modify(Answer answer, String content) {
 		answer.setContent(content);

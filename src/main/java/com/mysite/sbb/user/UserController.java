@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.mysite.sbb.answer.Answer;
+import com.mysite.sbb.answer.AnswerService;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionService;
 
@@ -26,6 +28,7 @@ public class UserController {
 	
 	private final UserService userService;
 	private final QuestionService questionService;
+	private final AnswerService answerService;
 	
 	@GetMapping("/signup")
 	public String signup(UserCreateForm userCreateForm) {
@@ -70,6 +73,16 @@ public class UserController {
 		Page<Question> paging = this.questionService.getListByAuthor(page, author);
 
 		model.addAttribute("type", "question");
+		model.addAttribute("paging", paging);
+		return "profile_detail";
+	}
+	
+	@RequestMapping("/profile/answer")
+	public String userAnswer(Principal principal, Model model, @RequestParam(value="page", defaultValue="0") int page) {
+		SiteUser author = this.userService.getUser(principal.getName());
+		Page<Answer> paging = this.answerService.getListByAuthor(page, author);
+
+		model.addAttribute("type", "answer");
 		model.addAttribute("paging", paging);
 		return "profile_detail";
 	}
