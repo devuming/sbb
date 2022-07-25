@@ -74,13 +74,39 @@ public class QuestionService {
 		return this.questionRepository.findAll(spec, pageable);
 	}
 
-	// 질문목록 조회 - 페이지의 질문 목록을 조회
+	// 질문목록 조회 - 페이지의 질문 목록을 조회 (Question.author = author)
 	public Page<Question> getListByAuthor(int page, SiteUser author){
 		List<Sort.Order> sorts = new ArrayList<>();
 		sorts.add(Sort.Order.desc("createDate"));
 		Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));		// 10개씩 조회
 		
 		return this.questionRepository.findAllByAuthor(pageable, author);
+	}
+
+
+	// 조회 API : Answer.author로 조회
+	private Specification<Question> getQuestionByAnswerAuthor(SiteUser answerAuthor){
+		return new Specification<>() {	// 쿼리 작성을 도와주는 JPA의 도구
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public Predicate toPredicate(Root<Question> q, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				query.distinct(true);	// 중복 제거
+				Join<Question, Answer> a = q.join("answerList", JoinType.LEFT);	// Question과 Answer 조인
+				
+				return cb.equal(a.get("author"),  answerAuthor);		// Answer.author = answerAuthor인 Question 리턴	
+			}
+		};
+	}
+	
+	// (select * from Question where Question.answerList.author = siteUser)
+	public Page<Question> getListByAnswers(int page, SiteUser siteUser){
+		List<Sort.Order> sorts = new ArrayList<>();
+		sorts.add(Sort.Order.desc("createDate"));
+		Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));		// 10개씩 조회
+		Specification<Question> spec = getQuestionByAnswerAuthor(siteUser);
+
+		return this.questionRepository.findAll(spec, pageable);
 	}
 	
 	public Question getQuestion(Integer id) {

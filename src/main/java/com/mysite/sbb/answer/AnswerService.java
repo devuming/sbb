@@ -56,15 +56,6 @@ public class AnswerService {
 			throw new DataNotFoundException("question not found");
 		}
 	}
-
-	public Page<Answer> getListByAuthor(int page, SiteUser author){
-		List<Sort.Order> sorts = new ArrayList<>();
-		sorts.add(Sort.Order.desc("createDate"));
-		Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));		// 10개씩 조회
-		
-		return this.answerRepository.findAllByAuthor(pageable, author);
-	}
-	
 	
 	public void modify(Answer answer, String content) {
 		answer.setContent(content);

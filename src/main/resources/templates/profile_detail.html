@@ -4,13 +4,13 @@
 	<h3 class="border-bottom my-3" th:if="${ type.equals('qustion')}" th:text="@{|${#authentication.name}님의 게시물 목록|}"></h3>	
 	<h3 class="border-bottom my-3" th:if="${ type.equals('answer')}" th:text="@{|${#authentication.name}님의 답변 목록|}"></h3>
 	
-	<table class="table col-3" th:if="${ type.equals('question') }"}>
+	<table class="table col-3">
 		<thead class="table-dark">
 			<tr class="text-center">
 				<th>번호</th>
 				<th>카테고리</th>
 				<th style="width:50%">제목</th>
-				<th>글쓴이</th>
+				<th>작성자</th>
 				<th>작성일시</th>
 			</tr>
 		</thead>
@@ -41,31 +41,34 @@
 		<!-- 답변 Tab -->		
 		<tbody th:if="${ type.equals('answer') }"}>
 			<!-- TODO : 답변의 질문 내용 -->
-			<tr class="text-center" th:each="question : ${paging}" th:if="${questions != null && !questions.isEmpty()}">
-				<!-- th: 타임리프 템플릿 엔진이 사용하는 속성, each - for문 같은 것 -->
-				<td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
-				<td><span th:if="${question.category != null}" th:text="${question.category.title}"></span></td>
-				<td class="text-start">
-					<a th:href="@{|/question/detail/${answer.question.id}|}" th:text="${question.subject}"></a>
-					<span class="text-danger small ms-2" th:if="${#lists.size(question.answerList) > 0}"
-						th:text="${#lists.size(question.answerList)}"></span> <!-- 답변 갯수 -->
-				</td>
-				<td><span th:if="${question.author != null}" th:text="${question.author.username}"></span></td>
-				<td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
-			</tr>
-			<!-- 답변 내용 -->
-			<tr class="text-center" th:each="answer, loop : ${paging}" th:if="${!paging.isEmpty()}">
-				<!-- th: 타임리프 템플릿 엔진이 사용하는 속성, each - for문 같은 것 -->
-				<td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
-				<td><span th:text="${answer.content}"></span></td>
-				<td class="text-start">
-					<!-- TODO : 추천 아이콘 -->
-					<span class="text-danger small ms-2" th:if="${#lists.size(answer.voter) > 0}"
-						th:text="${#lists.size(answer.voter)}"></span> <!-- 추천 갯수 -->
-				</td>
-				<td><span th:if="${answer.author != null}" th:text="${answer.author.username}"></span></td>
-				<td th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></td>
-			</tr>
+			<div th:each="question, loop : ${paging}" th:if="${!paging.isEmpty()}">			
+				<tr class="text-center">
+					<!-- th: 타임리프 템플릿 엔진이 사용하는 속성, each - for문 같은 것 -->
+					<td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
+					<td><span th:if="${question.category != null}" th:text="${question.category.title}"></span></td>
+					<td class="text-start">
+						<a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
+						<span class="text-danger small ms-2" th:if="${#lists.size(question.answerList) > 0}"
+							th:text="${#lists.size(question.answerList)}"></span> <!-- 답변 갯수 -->
+					</td>
+					<td><span th:if="${question.author != null}" th:text="${question.author.username}"></span></td>
+					<td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+				</tr>
+				<!-- 답변 내용 -->
+				<tr class="text-center" th:each="answer, loop : ${question.answerList}" th:if="${!question.answerList.isEmpty() && answer.author.username.equals(#authentication.name)}">
+					<td></td>
+					<td></td>
+					<td class="text-start">ㄴ&nbsp;&nbsp;
+						<span th:text="${answer.content}"></span>
+						&nbsp;					
+						<!-- TODO : 추천 아이콘 -->
+						<span class="text-danger small ms-2" th:if="${#lists.size(answer.voter) > 0}"
+							th:text="${#lists.size(answer.voter)}"></span> <!-- 추천 갯수 -->
+						</td>
+					<td><span th:if="${answer.author != null}" th:text="${answer.author.username}"></span></td>
+					<td th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+				</tr>
+			</div>
 			<!-- 사용자가 단 답변이 없는 경우 -->
 			<tr th:if="${paging.isEmpty()}" class="text-center">
 				<td colspan="5">답변이 없습니다.</td>

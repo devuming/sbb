@@ -1,6 +1,7 @@
 package com.mysite.sbb.user;
 
 import java.security.Principal;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -80,7 +81,7 @@ public class UserController {
 	@RequestMapping("/profile/answer")
 	public String userAnswer(Principal principal, Model model, @RequestParam(value="page", defaultValue="0") int page) {
 		SiteUser author = this.userService.getUser(principal.getName());
-		Page<Answer> paging = this.answerService.getListByAuthor(page, author);
+		Page<Question> paging = this.questionService.getListByAnswers(page, author);	// 로그인 유저가 답변을 달은 게시물 조회
 
 		model.addAttribute("type", "answer");
 		model.addAttribute("paging", paging);
