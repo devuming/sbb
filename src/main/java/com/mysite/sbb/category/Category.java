@@ -5,6 +5,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import org.hibernate.annotations.ColumnDefault;
+
+import com.mysite.sbb.user.UserRole;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,4 +21,6 @@ public class Category {
 	private Integer id;
 	
 	private String title;
+
+	private String userRole;		// 카테고리 권한 추가
 }

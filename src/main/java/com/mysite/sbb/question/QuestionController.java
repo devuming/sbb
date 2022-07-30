@@ -6,11 +6,14 @@ import java.util.List;
 import javax.servlet.http.Cookie;
 import javax.validation.Valid;
 
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,6 +31,7 @@ import com.mysite.sbb.answer.AnswerService;
 import com.mysite.sbb.category.Category;
 import com.mysite.sbb.category.CategoryService;
 import com.mysite.sbb.user.SiteUser;
+import com.mysite.sbb.user.UserRole;
 import com.mysite.sbb.user.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -79,6 +83,7 @@ public class QuestionController {
 		
 		// 카테고리 정보 가져오기
 		List<Category> category = this.categoryService.getCategoryAll();
+		
 		model.addAttribute("categoryList", category);		
 		questionForm.setCategory(category_id);
 		

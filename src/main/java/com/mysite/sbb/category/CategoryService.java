@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.mysite.sbb.DataNotFoundException;
+import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionRepository;
 import com.mysite.sbb.user.SiteUser;
@@ -42,5 +43,22 @@ public class CategoryService {
 		}else {
 			throw new DataNotFoundException("category Not Found");
 		}
+	}
+
+	public void create(String title, String userRole) {
+		Category c = new Category();
+		c.setTitle(title);
+		c.setTitle(userRole);
+		this.categoryRepository.save(c);
+	}
+
+	public void modify(Category category, String title, String userRole) {
+		category.setTitle(title);
+		category.setUserRole(userRole);
+		this.categoryRepository.save(category);
+	}
+	
+	public void delete(Category category) {
+		this.categoryRepository.delete(category);
 	}
 }
