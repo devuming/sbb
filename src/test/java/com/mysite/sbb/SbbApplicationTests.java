@@ -44,8 +44,9 @@ class SbbApplicationTests {
 //	@Transactional	// Question 조회 후 DB 세션이 끊어지는 것을 방지하기 위함 (Test 시에만 필요)	
 	@Test			// Test 메서드임을 나타냄, Junit 실행시 호출되는 메소드
 	void testJpa() {
-		Category c = this.categoryService.getCategoryById(4);
-		this.categoryService.modify(c, c.getTitle(), UserRole.ADMIN.getValue());
+//		Category c = this.categoryService.getCategoryById(4);
+//		this.categoryService.modify(c, c.getTitle(), UserRole.ADMIN.getValue());
+		this.categoryService.create("자유게시판");
 	}
 
 }
