@@ -15,4 +15,6 @@ public class CategoryForm {
 	private String title;
 	
 	private String userRole;
+	
+	private Integer sortOrder;	// 순서
 }

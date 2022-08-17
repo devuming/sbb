@@ -2,6 +2,8 @@ package com.mysite.sbb.category;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +18,7 @@ import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionRepository;
 import com.mysite.sbb.user.SiteUser;
+import com.mysite.sbb.user.UserRole;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,16 +27,17 @@ import lombok.RequiredArgsConstructor;
 public class CategoryService {
 	
 	private final CategoryRepository categoryRepository;
-	
-	public void create(String title) {
-		Category category = new Category();
-		category.setTitle(title);
-		this.categoryRepository.save(category);
-	}
-
-	
+		
 	public List<Category> getCategoryAll() {		
-		return this.categoryRepository.findAll();
+		List<Category> category = this.categoryRepository.findAll();
+		Collections.sort(category, new Comparator<Category>() {
+			@Override
+			public int compare(Category c1, Category c2) {
+				return c1.getSortOrder() - c2.getSortOrder();
+			}
+		});
+		
+		return category;
 	}
 
 	public Category getCategoryById(Integer id) {
@@ -45,11 +49,12 @@ public class CategoryService {
 		}
 	}
 
-	public void create(String title, String userRole) {
-		Category c = new Category();
-		c.setTitle(title);
-		c.setUserRole(userRole);
-		this.categoryRepository.save(c);
+	public void create(String title, String userRole, Integer order) {
+		Category category = new Category();
+		category.setTitle(title);
+		category.setUserRole(userRole.isEmpty() ? UserRole.USER.getValue() : userRole);
+		category.setSortOrder(order == null ? 0 : order);
+		this.categoryRepository.save(category);
 	}
 
 	public void modify(Category category, String title, String userRole) {

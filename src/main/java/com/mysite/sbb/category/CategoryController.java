@@ -52,7 +52,7 @@ public class CategoryController {
 		}
 		
 		// 카테고 등록
-		this.categoryService.create(categoryForm.getTitle(), categoryForm.getUserRole());	// 검증된 Form 값 받아서 db 등록
+		this.categoryService.create(categoryForm.getTitle(), categoryForm.getUserRole(), categoryForm.getSortOrder());	// 검증된 Form 값 받아서 db 등록
 		return "redirect:/question/list";		// 질문 저장 후 목록으로 이동
 	}
 }

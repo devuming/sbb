@@ -23,4 +23,8 @@ public class Category {
 	private String title;
 
 	private String userRole;		// 카테고리 권한 추가
+
+//	@ColumnDefault("0")	
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	private Integer sortOrder;
 }

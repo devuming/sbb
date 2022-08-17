@@ -46,7 +46,8 @@ class SbbApplicationTests {
 	void testJpa() {
 //		Category c = this.categoryService.getCategoryById(4);
 //		this.categoryService.modify(c, c.getTitle(), UserRole.ADMIN.getValue());
-		this.categoryService.create("자유게시판");
+		this.categoryService.create("자유게시판5", "", 1);
+		this.categoryService.create("자유게시판6", "", 2);
 	}
 
 }
