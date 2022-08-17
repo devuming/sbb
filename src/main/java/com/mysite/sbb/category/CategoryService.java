@@ -48,7 +48,7 @@ public class CategoryService {
 	public void create(String title, String userRole) {
 		Category c = new Category();
 		c.setTitle(title);
-		c.setTitle(userRole);
+		c.setUserRole(userRole);
 		this.categoryRepository.save(c);
 	}
 
