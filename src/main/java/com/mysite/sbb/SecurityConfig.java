@@ -14,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import com.mysite.sbb.user.UserRole;
 import com.mysite.sbb.user.UserSecurityService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,8 @@ public class SecurityConfig {
 	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-		http.authorizeRequests().antMatchers("/**").permitAll()		// 모든 인증되지 않은 요청 허락
+		http.authorizeRequests()
+				.antMatchers("/**").permitAll()		// 모든 인증되지 않은 요청 허락
 			.and().csrf().ignoringAntMatchers("/h2-console/**")		// csrf 토큰 처리시 h2 콘솔은 예외
 			.and()
 				.headers()
