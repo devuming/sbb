@@ -79,13 +79,17 @@ public class QuestionController {
 	
 	@PreAuthorize("isAuthenticated()")		
 	@GetMapping("/create")
-	public String questionCreate(Model model, QuestionForm questionForm, @RequestParam(value="category", defaultValue="0") int category_id) {
+	public String questionCreate(Model model, QuestionForm questionForm
+								, @RequestParam(value="category", defaultValue="") Integer category_id) {
 		
 		// 카테고리 정보 가져오기
 		List<Category> category = this.categoryService.getCategoryAll();
 		
 		model.addAttribute("categoryList", category);		
-		questionForm.setCategory(category_id);
+		
+		if(category_id != null) {
+			questionForm.setCategory(category_id);
+		}
 		
 		return "question_form";
 	}
@@ -93,7 +97,8 @@ public class QuestionController {
 	
 	@PreAuthorize("isAuthenticated()")	// 로그인 여부 체크
 	@PostMapping("/create")				// 매개변수가 다르면 @GetMapping과 같은 메서드명 사용 가능
-	public String questionCreate(Model model, @Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal) {	// (@RequestParam String subject, @RequestParam String content)
+	public String questionCreate(Model model, @Valid QuestionForm questionForm
+								, BindingResult bindingResult, Principal principal) {	// (@RequestParam String subject, @RequestParam String content)
 		if (bindingResult.hasErrors()) {		// 검증에서 오류가 발생한 경우 폼 화면 리로드
 			List<Category> category = this.categoryService.getCategoryAll();
 			model.addAttribute("categoryList", category);
