@@ -54,6 +54,6 @@ public class Question {
 	@ColumnDefault("0")	// default = 0
 	private int viewCount;				// 조회수
 
-	@OneToOne	
-	private Category category;			// 카테고리
+	@ManyToOne
+	private Category category;			// 카테고리 : 하나의 카테고리에 답변 여러개 
 }

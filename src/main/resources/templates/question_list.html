@@ -1,18 +1,12 @@
-<html layout:decorate="~{layout}">		<!-- layout.html파일을 템플릿 파일로 사용 -->
+<html layout:decorate="~{layout}">
+<!-- layout.html파일을 템플릿 파일로 사용 -->
 <div layout:fragment="content" class="container my-3">
 	<div>
 		<!-- 메뉴 -->
 		<div class="d-flex justify-content-center">
+			<!-- TODO : 드롭다운으로 바꾸기 -->
 			<aside class="bd-sidebar col-2 text-center">
-				<ul class="list-group mx-2">
-					<li class="menu list-group-item list-group-item-action" th:classappend="${category == null} ? 'active'" href="javascript:void(0)" th:data-page="${' '}">
-						전체보기
-					</li>
-					<li class="menu list-group-item list-group-item-action" th:each="menu : ${categoryList}" th:classappend="${menu.id == category} ? 'active'"  th:text="${menu.title}"  href="javascript:void(0)" th:data-page="${menu.id}"></li>
-				</ul>
-				<div sec:authorize="hasRole('ROLE_ADMIN')">
-					<a th:href="@{/admin/category/create}">카테고리 추가</a>
-				</div>
+				<div th:replace="nav_category :: categoryFragment"></div>
 			</aside>
 			<table class="table col-3">
 				<thead class="table-dark">
@@ -25,14 +19,14 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr class="text-center" th:each="question, loop : ${paging}"  th:if="${!paging.isEmpty()}">		<!-- th: 타임리프 템플릿 엔진이 사용하는 속성, each - for문 같은 것 -->
+					<tr class="text-center" th:each="question, loop : ${paging}" th:if="${!paging.isEmpty()}">
+						<!-- th: 타임리프 템플릿 엔진이 사용하는 속성, each - for문 같은 것 -->
 						<td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
 						<td><span th:if="${question.category != null}" th:text="${question.category.title}"></span></td>
 						<td class="text-start">
 							<a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
-							<span class="text-danger small ms-2"
-								th:if="${#lists.size(question.answerList) > 0}"
-								th:text="${#lists.size(question.answerList)}"></span>		<!-- 답변 갯수 -->
+							<span class="text-danger small ms-2" th:if="${#lists.size(question.answerList) > 0}"
+								th:text="${#lists.size(question.answerList)}"></span> <!-- 답변 갯수 -->
 						</td>
 						<td><span th:if="${question.author != null}" th:text="${question.author.username}"></span></td>
 						<td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
@@ -41,7 +35,7 @@
 						<td colspan="5">게시물이 없습니다.</td>
 					</tr>
 					<tr>
-						<td colspan="5" class="text-end"> 
+						<td colspan="5" class="text-end">
 							<a th:href="@{|/question/create?id=${category}|}" class="btn btn-warning">게시물 등록</a>
 						</td>
 					</tr>
@@ -60,19 +54,18 @@
 				</li>
 				<li th:each="page : ${#numbers.sequence(0, paging.totalPages - 1)}"
 					th:if="${page >= paging.number-5 and page <= paging.number+5}"
-					th:classappend="${page == paging.number} ? 'active'"
-					class="page-item">
+					th:classappend="${page == paging.number} ? 'active'" class="page-item">
 					<a th:text="${page + 1}" class="page-link" href="javascript:void(0)" th:data-page="${page}"></a>
 				</li>
 				<li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
-					<a class="page-link"  href="javascript:void(0)" th:data-page="${paging.number + 1}">
+					<a class="page-link" href="javascript:void(0)" th:data-page="${paging.number + 1}">
 						<span>다음</span>
 					</a>
 				</li>
-			</ul>			
+			</ul>
 		</div>
 		<div class="input-group justify-content-center col-3">
-			<input type="text" id="search_kw" class="form-control" th:value="${kw}" placeholder="검색어를 입력하세요."/>
+			<input type="text" id="search_kw" class="form-control" th:value="${kw}" placeholder="검색어를 입력하세요." />
 			<div class="input-group-append">
 				<button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
 			</div>
@@ -80,37 +73,38 @@
 	</div>
 	<!-- 페이징 처리 끝 -->
 	<form th:action="@{/question/list}" method="get" id="searchForm">
-		<input type="hidden" id="kw" name="kw" th:value="${kw}"/>
-		<input type="hidden" id="page" name="page" th:value="${paging.number}"/>
-		<input type="hidden" id="category" name="category" th:value="${category}"/>
+		<input type="hidden" id="kw" name="kw" th:value="${kw}" />
+		<input type="hidden" id="page" name="page" th:value="${paging.number}" />
+		<input type="hidden" id="category" name="category" th:value="${category}" />
 	</form>
 	<!-- <a th:href="@{/question/create}" class="btn btn-primary">질문 등록하기</a> -->
 </div>
 <script layout:fragment="script" type="text/javascript">
-const page_elements = document.getElementsByClassName("page-link");
-Array.from(page_elements).forEach(function(element){
-	element.addEventListener('click', function(){
-		document.getElementById('page').value = this.dataset.page;
-		document.getElementById('searchForm').submit();
+	const page_elements = document.getElementsByClassName("page-link");
+	Array.from(page_elements).forEach(function (element) {
+		element.addEventListener('click', function () {
+			document.getElementById('page').value = this.dataset.page;
+			document.getElementById('searchForm').submit();
+		});
 	});
-});
 
-const btn_search = document.getElementById("btn_search");
-btn_search.addEventListener('click', function(){
-	document.getElementById('kw').value = document.getElementById("search_kw").value;
-	document.getElementById('page').value = 0;		// 검색 시 0페이지 부터 조회
-	document.getElementById('searchForm').submit();
-});
-
-const menu = document.getElementsByClassName("menu");
-Array.from(menu).forEach(function(element){
-	element.addEventListener('click', function(){
-		document.getElementById('kw').value = '';
-		document.getElementById('category').value = this.dataset.page;
+	const btn_search = document.getElementById("btn_search");
+	btn_search.addEventListener('click', function () {
+		document.getElementById('kw').value = document.getElementById("search_kw").value;
 		document.getElementById('page').value = 0;		// 검색 시 0페이지 부터 조회
 		document.getElementById('searchForm').submit();
 	});
-});
+
+	const menu = document.getElementsByClassName("menu");
+	Array.from(menu).forEach(function (element) {
+		element.addEventListener('click', function () {
+			document.getElementById('kw').value = '';
+			document.getElementById('category').value = this.dataset.page;
+			document.getElementById('page').value = 0;		// 검색 시 0페이지 부터 조회
+			document.getElementById('searchForm').submit();
+		});
+	});
 
 </script>
+
 </html>

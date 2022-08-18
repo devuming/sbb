@@ -49,17 +49,18 @@ public class CategoryService {
 		}
 	}
 
-	public void create(String title, String userRole, Integer order) {
+	public void create(String title, String userRole, Integer sortOrder) {
 		Category category = new Category();
 		category.setTitle(title);
 		category.setUserRole(userRole.isEmpty() ? UserRole.USER.getValue() : userRole);
-		category.setSortOrder(order == null ? 0 : order);
+		category.setSortOrder(sortOrder == null ? 0 : sortOrder);
 		this.categoryRepository.save(category);
 	}
 
-	public void modify(Category category, String title, String userRole) {
+	public void modify(Category category, String title, String userRole, Integer sortOrder) {
 		category.setTitle(title);
 		category.setUserRole(userRole);
+		category.setSortOrder(sortOrder);
 		this.categoryRepository.save(category);
 	}
 	
