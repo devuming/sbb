@@ -1,10 +1,21 @@
 package com.mysite.sbb.user;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.security.Principal;
+import java.security.SecureRandom;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -66,6 +77,158 @@ public class UserController {
 	@GetMapping("/login")		// PostMapping은 스프링 시큐리티가 대신 처리
 	public String login() {
 		return "login_form";
+	}
+	
+	private final String CLIENT_ID = "BXenC7aa1ecXRYtrOmoa";
+	private final String CLIENT_SECRET = "rjMGMSte2t";
+	private final String CALLBACK_URL = "http://localhost:8080/user/callbackNaver";
+	public String generateState()
+	{
+	    SecureRandom random = new SecureRandom();
+	    return new BigInteger(130, random).toString(32);
+	}
+	
+	@GetMapping("/loginNaver")
+	public String loginNaver(HttpSession session) {
+		String state = "";
+		String requestUrl = "";
+
+		// 1. 로그인 연동 URL 생성
+		try {
+			String callbackUrl = URLEncoder.encode(CALLBACK_URL, "UTF-8");
+
+			state = generateState();				// 랜덤
+			session.setAttribute("state", state);		// 세션 저장 (csrf 공격 방지)
+
+			
+			requestUrl = "https://nid.naver.com/oauth2.0/authorize"
+					+ "?response_type=code"
+					+ "&client_id=" + CLIENT_ID
+					+ "&state=" + state
+					+ "&redirect_uri=" + callbackUrl;
+
+			
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+
+		return "redirect:" + requestUrl;
+	}
+
+	
+	@RequestMapping("/callbackNaver")
+	public String callbackNaver(HttpSession session
+								, @RequestParam(value="code", defaultValue = "") String code
+								, @RequestParam(value="state", defaultValue = "") String state
+								, @RequestParam(value="error", defaultValue = "") String error
+								, @RequestParam(value="error_description", defaultValue = "") String error_description) {
+		// /callbackNaver/redirect?code={code값}&state={state값}
+		String storedState = session.getAttribute("state").toString();
+		if (!storedState.equals(state)) {
+			return "login_form";		// TODO : 오류 발생 시키기
+		}
+		
+		// 2. Access Token 발급
+		String accessToken = "";
+	    String refreshToken = "";	    
+		int expire = 0;
+		
+		String tokenUrl = "https://nid.naver.com/oauth2.0/token"
+				+ "?grant_type=authorization_code"
+				+ "&client_id=" + CLIENT_ID
+				+ "&client_secret=" + CLIENT_SECRET
+				+ "&code=" + code;
+
+		
+		try {
+			URL url = new URL(tokenUrl);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			con.setRequestMethod("GET"); // Get 방식 요청 
+			
+			int responseCode = con.getResponseCode();
+			BufferedReader br;
+
+			if (responseCode == 200) { // 정상 호출
+				br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			} else { // 에러 발생
+				br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+			}
+			String inputLine;
+			StringBuffer res = new StringBuffer();
+			
+			while ((inputLine = br.readLine()) != null) {
+				res.append(inputLine);
+			}
+			br.close();
+			
+			if (responseCode == 200) {
+				// JSON Parsing
+				JSONParser jsonParser = new JSONParser();
+				JSONObject jsonObject = (JSONObject) jsonParser.parse(res.toString()); 
+
+				accessToken = jsonObject.get("access_token").toString();
+				refreshToken = jsonObject.get("refresh_token").toString();
+				expire = Integer.parseInt(jsonObject.get("expires_in").toString());
+				
+				System.out.println("accessToken : " + accessToken);
+			}		
+			
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	    
+		
+		// 3. 프로필 정보 조회
+		String profileUrl = "https://openapi.naver.com/v1/nid/me";
+		
+		// response
+		String sns_id = ""; 		// response/id
+		String sns_name = ""; 		//response/name
+		String email = "";			//response/email
+
+		
+		try {
+			URL url = new URL(profileUrl);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			con.setRequestMethod("POST"); // Get 방식 요청 
+			con.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+			
+			int responseCode = con.getResponseCode();
+			BufferedReader br;
+
+			if (responseCode == 200) { // 정상 호출
+				br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			} else { // 에러 발생
+				br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+			}
+			String inputLine;
+			StringBuffer res = new StringBuffer();
+			
+			while ((inputLine = br.readLine()) != null) {
+				res.append(inputLine);
+			}
+			br.close();
+			
+			if (responseCode == 200) {
+				// JSON Parsing
+				JSONParser jsonParser = new JSONParser();
+				JSONObject jsonObject = (JSONObject) jsonParser.parse(res.toString()); 
+				String resultcode = jsonObject.get("resultcode").toString();
+				String message = jsonObject.get("message").toString();
+				
+				JSONObject jsResponse = (JSONObject)jsonObject.get("response");
+				System.out.println("response1:" + jsonObject);
+				System.out.println("response2:" + jsResponse);
+				sns_id = jsResponse.get("id").toString();				// response/id	동일인 식별 정보 (고유값)
+				sns_name = jsResponse.get("name").toString();			// response/name 사용자 이름
+				email = jsResponse.get("email").toString();				// response/email
+			}		
+			
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return "redirect:/";
 	}
 	
 	@RequestMapping("/profile/question")

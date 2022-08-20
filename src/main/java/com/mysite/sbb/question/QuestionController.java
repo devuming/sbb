@@ -59,7 +59,7 @@ public class QuestionController {
 		
 		List<Category> categoryList = this.categoryService.getCategoryAll();
 		model.addAttribute("categoryList", categoryList);
-				
+						
 		return "question_list";		// question_list.html 리턴
 	}
 	
