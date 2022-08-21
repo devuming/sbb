@@ -55,7 +55,8 @@ public class QuestionController {
 		Page<Question> paging = this.questionService.getList(page, kw, category);
 		model.addAttribute("paging", paging);
 		model.addAttribute("kw", kw);
-		model.addAttribute("category", category);		
+		if(category != null)
+			model.addAttribute("category", category);		
 		
 		List<Category> categoryList = this.categoryService.getCategoryAll();
 		model.addAttribute("categoryList", categoryList);
@@ -80,15 +81,21 @@ public class QuestionController {
 	@PreAuthorize("isAuthenticated()")		
 	@GetMapping("/create")
 	public String questionCreate(Model model, QuestionForm questionForm
-								, @RequestParam(value="category", defaultValue="") Integer category_id) {
-		
+								, @RequestParam(value="category", defaultValue = "") String category_id) {
+
 		// 카테고리 정보 가져오기
 		List<Category> category = this.categoryService.getCategoryAll();
 		
 		model.addAttribute("categoryList", category);		
-		
+
 		if(category_id != null) {
-			questionForm.setCategory(category_id);
+			for(int i = 0; i < category.size(); i++) {
+				Category c = category.get(i);
+				if (c.getId().toString().equals(category_id)) {
+					questionForm.setCategory(c.getId());
+					break;
+				}
+			}
 		}
 		
 		return "question_form";
