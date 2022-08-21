@@ -75,7 +75,8 @@ public class UserController {
 	}
 	
 	@GetMapping("/login")		// PostMapping은 스프링 시큐리티가 대신 처리
-	public String login() {
+	public String login(Model model, HttpSession session) {
+		model.addAttribute("naverLoginUrl", generateNaverUrl(session));
 		return "login_form";
 	}
 	
@@ -88,12 +89,11 @@ public class UserController {
 	    return new BigInteger(130, random).toString(32);
 	}
 	
-	@GetMapping("/loginNaver")
-	public String loginNaver(HttpSession session) {
+	public String generateNaverUrl(HttpSession session) {
 		String state = "";
 		String requestUrl = "";
 
-		// 1. 로그인 연동 URL 생성
+		//---- 1. 로그인 연동 URL 생성
 		try {
 			String callbackUrl = URLEncoder.encode(CALLBACK_URL, "UTF-8");
 
@@ -112,7 +112,7 @@ public class UserController {
 			e.printStackTrace();
 		}
 
-		return "redirect:" + requestUrl;
+		return requestUrl;
 	}
 
 	
@@ -128,7 +128,7 @@ public class UserController {
 			return "login_form";		// TODO : 오류 발생 시키기
 		}
 		
-		// 2. Access Token 발급
+		//---- 2. Access Token 발급
 		String accessToken = "";
 	    String refreshToken = "";	    
 		int expire = 0;
@@ -148,7 +148,8 @@ public class UserController {
 			int responseCode = con.getResponseCode();
 			BufferedReader br;
 
-			if (responseCode == 200) { // 정상 호출
+			if (responseCode == 200) 
+			{ // 정상 호출
 				br = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			} else { // 에러 발생
 				br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
@@ -156,12 +157,14 @@ public class UserController {
 			String inputLine;
 			StringBuffer res = new StringBuffer();
 			
-			while ((inputLine = br.readLine()) != null) {
+			while ((inputLine = br.readLine()) != null) 
+			{
 				res.append(inputLine);
 			}
 			br.close();
 			
-			if (responseCode == 200) {
+			if (responseCode == 200) 
+			{
 				// JSON Parsing
 				JSONParser jsonParser = new JSONParser();
 				JSONObject jsonObject = (JSONObject) jsonParser.parse(res.toString()); 
@@ -178,7 +181,7 @@ public class UserController {
 		}
 	    
 		
-		// 3. 프로필 정보 조회
+		//---- 3. 프로필 정보 조회
 		String profileUrl = "https://openapi.naver.com/v1/nid/me";
 		
 		// response
@@ -216,19 +219,32 @@ public class UserController {
 				JSONObject jsonObject = (JSONObject) jsonParser.parse(res.toString()); 
 				String resultcode = jsonObject.get("resultcode").toString();
 				String message = jsonObject.get("message").toString();
+				System.out.println(jsonObject.toString());
 				
 				JSONObject jsResponse = (JSONObject)jsonObject.get("response");
-				System.out.println("response1:" + jsonObject);
-				System.out.println("response2:" + jsResponse);
+				
 				sns_id = jsResponse.get("id").toString();				// response/id	동일인 식별 정보 (고유값)
 				sns_name = jsResponse.get("name").toString();			// response/name 사용자 이름
 				email = jsResponse.get("email").toString();				// response/email
+				System.out.println(jsResponse.toString());
+				// 1. 회원여부 확인
+				SiteUser siteuser = userService.getUser(sns_id);
+				if (siteuser == null) {
+					// 2. 회원가입
+					userService.createSNS(sns_id, email, sns_id, sns_id, sns_name, "NAVER");	
+					siteuser = userService.getUser(sns_id);
+				}
+				
+				// 3. 로그인 처리
+				session.setAttribute("username", siteuser.getSns_id());
+				session.setAttribute("password", siteuser.getPassword());
 			}		
 			
 		} catch (Exception e) {
 			System.out.println(e);
 		}
-		return "redirect:/";
+		
+		return "redirect:/user/login";
 	}
 	
 	@RequestMapping("/profile/question")
