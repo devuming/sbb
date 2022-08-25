@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,5 +40,20 @@ public class SiteUser {
 	private String sns_type;		// SNS 로그인 타입
 
 	private LocalDateTime createDate;
+	
+	public SiteUser() {
+		super();
+	}
+	@Builder
+	public SiteUser(String username, String password, String email, String sns_id, String sns_name, String sns_type) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.email = email;
+		this.sns_id = sns_id;
+		this.sns_name = sns_name;
+		this.sns_type = sns_type;
+		this.createDate = LocalDateTime.now();
+	}
 	
 }

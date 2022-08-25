@@ -244,7 +244,7 @@ public class UserController {
 			System.out.println(e);
 		}
 		
-		return "redirect:/user/login";
+		return "login_form";
 	}
 	
 	@RequestMapping("/profile/question")

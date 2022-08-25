@@ -1,5 +1,6 @@
 package com.mysite.sbb;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import com.mysite.sbb.oauth.PrinicipalOAuth2UserService;
 import com.mysite.sbb.user.UserRole;
 import com.mysite.sbb.user.UserSecurityService;
 
@@ -26,6 +28,9 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 	
 	private final UserSecurityService userSecurityService;
+	
+	@Autowired
+	private PrinicipalOAuth2UserService prinicipalOAuth2UserService;
 	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -43,8 +48,12 @@ public class SecurityConfig {
 				.logout()
 				.logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))	// 로그아웃 URL
 				.logoutSuccessUrl("/")												// 로그아웃 성공 시 루트로 이동
-				.invalidateHttpSession(true);										// 로그아웃 시 사용자 세션 삭제
-		
+				.invalidateHttpSession(true)										// 로그아웃 시 사용자 세션 삭제
+			.and()
+				.oauth2Login()
+				.loginPage("/user/login")		// oauth 로그인 후처리 페이지 1. 코드받기 2. 엑세스토큰 받기 (권한 획득) 3. 회원정보 받기 4. 로그인처
+				.userInfoEndpoint()
+				.userService(prinicipalOAuth2UserService);		// 엑세스토큰과 사용자 프로필 정보를 동시에 받아오도록 
 		return http.build();
 	}
 	

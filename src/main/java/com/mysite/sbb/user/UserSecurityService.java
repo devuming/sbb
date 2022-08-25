@@ -20,6 +20,7 @@ public class UserSecurityService implements UserDetailsService{		// UserDetailsS
 	
 	private final UserRepository userRepository;
 	
+	// 시큐리티 세
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{		// 인터페이스의 loadUserByUsername 메소드 구현
 		// 1. username 으로 SiteUser 조회
