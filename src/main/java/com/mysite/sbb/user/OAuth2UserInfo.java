@@ -1,0 +1,8 @@
+package com.mysite.sbb.user;
+
+public interface OAuth2UserInfo {
+	String getProvider();
+	String getProviderId();
+	String getName();
+	String getEmail();
+}
