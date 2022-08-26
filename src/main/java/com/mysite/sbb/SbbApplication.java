@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
-@PropertySource(value = { "classpath:application-oauth.properties" })
+@PropertySource(value = { "classpath:application-oauth.properties", "classpath:application.properties" })
 public class SbbApplication {
 
 	public static void main(String[] args) {
